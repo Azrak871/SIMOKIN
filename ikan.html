@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Koleksi & Edukasi Ikan – SIMOKIN</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Fish page specific */
+        .fish-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+        }
+
+        .fish-tab {
+            padding: 10px 20px;
+            border-radius: 100px;
+            border: 1.5px solid var(--border);
+            background: rgba(255,255,255,0.6);
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .fish-tab:hover, .fish-tab.active {
+            background: var(--ocean-mid);
+            color: white;
+            border-color: var(--ocean-mid);
+        }
+
+        /* Fish profile card */
+        .fish-profile {
+            display: none;
+        }
+
+        .fish-profile.active {
+            display: grid;
+            grid-template-columns: 1fr 1.4fr;
+            gap: 24px;
+            animation: fadeUp 0.4s ease both;
+        }
+
+        .fish-main-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        .fish-hero-img {
+            width: 100%;
+            height: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 90px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .fish-hero-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .fish-body { padding: 24px; }
+
+        .fish-body h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--ocean-deep);
+        }
+
+        .fish-latin {
+            font-style: italic;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .fish-stats-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .fish-stat {
+            background: var(--foam);
+            border-radius: 10px;
+            padding: 10px 12px;
+        }
+
+        .fish-stat-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+            margin-bottom: 3px;
+        }
+
+        .fish-stat-value {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--ocean-deep);
+        }
+
+        /* Info panels */
+        .info-panels { display: flex; flex-direction: column; gap: 16px; }
+
+        .info-panel {
+            background: var(--card-bg);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            padding: 20px 22px;
+        }
+
+        .info-panel-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .info-panel-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .info-panel h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--ocean-deep);
+        }
+
+        .info-panel p {
+            font-size: 0.87rem;
+            color: var(--text-dark);
+            line-height: 1.7;
+        }
+
+        /* Pakan detail */
+        .pakan-card {
+            background: white;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .pakan-card:last-child { margin-bottom: 0; }
+
+        .pakan-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .pakan-card h4 {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--ocean-deep);
+            margin-bottom: 4px;
+        }
+
+        .pakan-card p {
+            font-size: 0.79rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        /* Health indicators */
+        .health-bar-wrapper { margin-bottom: 10px; }
+
+        .health-bar-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: var(--text-dark);
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .health-bar {
+            height: 8px;
+            background: var(--foam);
+            border-radius: 100px;
+            overflow: hidden;
+        }
+
+        .health-bar-fill {
+            height: 100%;
+            border-radius: 100px;
+            background: linear-gradient(90deg, var(--teal), var(--ocean-light));
+            transition: width 1s ease;
+        }
+
+        /* Penyakit table */
+        .disease-table { width: 100%; border-collapse: collapse; }
+
+        .disease-table th {
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+            text-align: left;
+            padding: 8px 12px;
+            background: var(--foam);
+            border-radius: 6px;
+        }
+
+        .disease-table td {
+            padding: 10px 12px;
+            font-size: 0.82rem;
+            color: var(--text-dark);
+            border-bottom: 1px dashed var(--border);
+            vertical-align: top;
+        }
+
+        .disease-table tr:last-child td { border-bottom: none; }
+
+        @media (max-width: 768px) {
+            .fish-profile.active { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <a href="index.html" class="navbar-brand">
+        <div class="logo-icon">
+            <img src="logo.png" alt="SMAN 28 Jakarta"
+                 style="width:28px; height:28px; object-fit:contain;">
+        </div>
+        <div>
+            <span class="brand-name">SIMOKIN</span>
+            <span class="brand-sub">SMAN 28 Jakarta</span>
+        </div>
+    </a>
+    <ul class="navbar-nav">
+        <li><a href="index.html">🏠 <span>Beranda</span></a></li>
+        <li><a href="jadwal.html">📅 <span>Jadwal</span></a></li>
+        <li><a href="ikan.html" class="active">🐟 <span>Koleksi Ikan</span></a></li>
+        <li><a href="laporan.html">📋 <span>Laporan</span></a></li>
+    </ul>
+</nav>
+
+<div class="site-wrapper">
+
+    <div class="page-hero fade-up">
+        <div class="hero-icon">🐟</div>
+        <div>
+            <h1>Koleksi & Edukasi Ikan</h1>
+            <p class="hero-sub">Kenali lebih dekat penghuni kolam SMAN 28 Jakarta</p>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="fish-tabs fade-up fade-up-1">
+        <button class="fish-tab active" onclick="showFish('koi', this)">🎏 Koi Kohaku</button>
+        <button class="fish-tab" onclick="showFish('nila', this)">🐟 Nila Gift</button>
+        <button class="fish-tab" onclick="showFish('lele', this)">🐡 Lele Dumbo</button>
+    </div>
+
+    <!-- ======= KOI KOHAKU ======= -->
+    <div class="fish-profile active" id="fish-koi">
+
+        <div class="fish-main-card fade-up fade-up-1">
+            <div class="fish-hero-img" style="background: linear-gradient(135deg, #e8f4fc, #caf0f8);">
+                <img src="koi.png" alt="Koi Kohaku">
+            </div>
+            <div class="fish-body">
+                <h2>Koi Kohaku</h2>
+                <span class="fish-latin">Cyprinus rubrofuscus var. "Kohaku"</span>
+
+                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+                    <span class="badge badge-blue">25 Ekor</span>
+                    <span class="badge badge-green">Sehat</span>
+                    <span class="badge badge-gold">Dekoratif</span>
+                </div>
+
+                <p style="font-size:0.87rem;color:var(--text-dark);line-height:1.7;">
+                    Koi Kohaku adalah varietas ikan koi paling ikonik dengan warna dasar putih bersih bermotif merah (hi) yang menawan. Nama "Kohaku" sendiri berarti <em>merah-putih</em> dalam bahasa Jepang. Ikan ini menjadi simbol keberuntungan dan kemakmuran dalam budaya Asia Timur.
+                </p>
+
+                <div class="fish-stats-row">
+                    <div class="fish-stat">
+                        <div class="fish-stat-label">Ukuran Kolam</div>
+                        <div class="fish-stat-value">≥ 4.000 L</div>
+                    </div>
+                    <div class="fish-stat">
+                        <div class="fish-stat-label">Suhu Ideal</div>
+                        <div class="fish-stat-value">15 – 28°C</div>
+                    </div>
+                    <div class="fish-stat">
+                        <div class="fish-stat-label">pH Ideal</div>
+                        <div class="fish-stat-value">7.0 – 8.5</div>
+                    </div>
+                    <div class="fish-stat">
+                        <div class="fish-stat-label">Usia Hidup</div>
+                        <div class="fish-stat-value">25 – 35 tahun</div>
+                    </div>
+                    <div class="fish-stat">
+                        <div class="fish-stat-label">Panjang Dewasa</div>
+                        <div class="fish-stat-value">60 – 90 cm</div>
+                    </div>
+                    <div class="fish-stat">
+                        <div class="fish-stat-label">Asal</div>
+                        <div class="fish-stat-value">Jepang</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-panels">
+            <div class="info-panel fade-up fade-up-2">
+                <div class="info-panel-header">
+                    <div class="info-panel-icon" style="background:rgba(0,180,216,0.12)">🌊</div>
+                    <h3>Habitat & Kebutuhan Air</h3>
+                </div>
+                <p>Koi Kohaku membutuhkan kolam besar dengan sistem filtrasi yang kuat karena menghasilkan banyak limbah. Air harus selalu jernih dengan aerasi yang baik. Hindari perubahan suhu mendadak karena dapat memicu stres dan penyakit. Idealnya kolam memiliki kedalaman minimal 1.2 meter.</p>
+            </div>
+
+            <div class="info-panel fade-up fade-up-3">
+                <div class="info-panel-header">
+                    <div class="info-panel-icon" style="background:rgba(244,196,48,0.12)">🍽️</div>
+                    <h3>Panduan Pakan & Nutrisi</h3>
+                </div>
+
+                <div class="pakan-card">
+                    <div class="pakan-icon" style="background:rgba(0,180,216,0.12)">⭐</div>
+                    <div>
+                        <h4>Saki-Hikari Balance (Rekomendasi Utama)</h4>
+                        <p>Pelet premium Jepang dengan probiotik khusus yang meningkatkan warna merah (hi) secara alami. Kandungan protein 35%, sangat mudah dicerna sehingga mengurangi pencemaran air. Diberikan 2x sehari, secukupnya habis dalam 5 menit.</p>
+                    </div>
+                </div>
+
+                <div class="pakan-card">
+                    <div class="pakan-icon" style="background:rgba(244,196,48,0.12)">🌿</div>
+                    <div>
+                        <h4>Pelet Spirulina (Suplemen Warna)</h4>
+                        <p>Diberikan 2–3x seminggu sebagai suplemen untuk memperindah warna merah dan putih. Kandungan astaxanthin alami dari ganggang spirulina sangat efektif meningkatkan kilap sisik.</p>
+                    </div>
+                </div>
+
+                <div class="pakan-card">
+                    <div class="pakan-icon" style="background:rgba(255,107,107,0.12)">🥬</div>
+                    <div>
+                        <h4>Makanan Alami (Sesekali)</h4>
+                        <p>Cacing darah beku (bloodworm), udang krill, dan selada segar bisa diberikan sesekali sebagai variasi gizi. Jangan terlalu sering agar kualitas air tetap terjaga.</p>
+                    </div>
+                </div>
+
+                <div style="background:rgba(255,165,0,0.08);border:1px dashed rgba(255,165,0,0.3);border-radius:10px;padding:10px 14px;margin-top:4px;">
+                    <p style="font-size:0.8rem;color:#8a6500;"><strong>⚠️ Perhatian:</strong> Kurangi porsi makan saat suhu air &lt;15°C karena metabolisme ikan melambat. Jangan beri makan sama sekali jika suhu &lt;10°C.</p>
+                </div>
+            </div>
+
+            <div class="info-panel fade-up fade-up-4">
+                <div class="info-panel-header">
+                    <div class="info-panel-icon" style="background:rgba(46,213,115,0.12)">💊</div>
+                    <h3>Penyakit Umum & Pencegahan</h3>
+                </div>
+                <table class="disease-table">
+                    <thead>
+                        <tr>
+                            <th>Penyakit</th>
+                            <th>Gejala</th>
+                            <th>Penanganan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>White Spot (Ich)</strong></td>
+                            <td>Bintik putih di tubuh, ikan menggosok-gosokkan tubuh</td>
+                            <td>Naikkan suhu ke 30°C + obat anti-parasit</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Infeksi Jamur</strong></td>
+                            <td>Bercak kapas putih di sirip atau tubuh</td>
+                            <td>Rendam dalam larutan garam ikan 0.3%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Dropsy</strong></td>
+                            <td>Sisik berdiri, perut membengkak</td>
+                            <td>Isolasi ikan, antibiotik + garam ikan</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======= NILA GIFT ======= -->
+    <div class="fish-profile" id="fish-nila">
+
+        <div class="fish-main-card fade-up fade-up-1">
+            <div class="fish-hero-img" style="background: linear-gradient(135deg, #e8ffe8, #c8f5c8);">
+                <img src="nila.png" alt="Nila Gift">
+            </div>
+            <div class="fish-body">
+                <h2>Nila Gift</h2>
+                <span class="fish-latin">Oreochromis niloticus var. "GIFT"</span>
+
+                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+                    <span class="badge badge-blue">150 Ekor</span>
+                    <span class="badge badge-green">Sehat</span>
+                    <span class="badge badge-orange">Konsumsi</span>
+                </div>
+
+                <p style="font-size:0.87rem;color:var(--text-dark);line-height:1.7;">
+                    Ikan Nila Gift (<em>Genetically Improved Farmed Tilapia</em>) adalah strain unggul yang dikembangkan oleh WorldFish Center. Nila Gift tumbuh 85% lebih cepat dari nila biasa, tahan penyakit, dan sangat cocok untuk budidaya sekolah karena mudah dirawat dan beradaptasi di berbagai kondisi air.
+                </p>
+
+                <div class="fish-stats-row">
+                    <div class="fish-stat">
+                        <div class="fish-stat-label">Kepadatan</div>
+                        <div class="fish-stat-value">50–100 ekor/m³</div>
+                    </div>
+                    <div class="fish-stat">
+                        <div class="fish-stat-label">Suhu Ideal</div>
+                        <div class="fish-stat-value">25 – 30°C</div>
+                    </div>
+                    <div class="fish-stat">
+                        <div class="fish-stat-label">pH Ideal</div>
+                        <div class="fish-stat-value">6.5 – 8.5</div>
+                    </div>
+                    <div class="fish-stat">
+                        <div class="fish-stat-label">Masa Panen</div>
+                        <div class="fish-stat-value">4 – 6 bulan</div>
+                    </div>
+                    <div class="fish-stat">
+                        <div class="fish-stat-label">Berat Panen</div>
+                        <div class="fish-stat-value">300 – 500 g</div>
+                    </div>
+                    <div class="fish-stat">
+                        <div class="fish-stat-label">Asal</div>
+                        <div class="fish-stat-value">Afrika / Filipina</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-panels">
+            <div class="info-panel fade-up fade-up-2">
+                <div class="info-panel-header">
+                    <div class="info-panel-icon" style="background:rgba(46,213,115,0.12)">🌊</div>
+                    <h3>Habitat & Kebutuhan Air</h3>
+                </div>
+                <p>Nila Gift sangat adaptif dan toleran terhadap kualitas air yang kurang optimal, menjadikannya pilihan ideal untuk kolam sekolah. Namun untuk pertumbuhan optimal, pastikan kadar oksigen terlarut &gt;5 mg/L dan amonia &lt;0.02 mg/L. Kolam sebaiknya memiliki aerasi yang cukup dan terhindar dari tumbuhan air berlebihan.</p>
+            </div>
+
+            <div class="info-panel fade-up fade-up-3">
+                <div class="info-panel-header">
+                    <div class="info-panel-icon" style="background:rgba(244,196,48,0.12)">🍽️</div>
+                    <h3>Panduan Pakan & Nutrisi</h3>
+                </div>
+
+                <div class="pakan-card">
+                    <div class="pakan-icon" style="background:rgba(46,213,115,0.12)">⭐</div>
+                    <div>
+                        <h4>Pelet T-78 (781, 782, 783) — Rekomendasi Utama</h4>
+                        <p>Pelet komersial terlaris untuk nila budidaya di Indonesia. Kandungan protein 28–32% dengan harga terjangkau. Kode angka menunjukkan ukuran pelet: 781 untuk benih, 782 untuk remaja, 783 untuk dewasa. Diberikan 3–5% dari bobot tubuh ikan per hari, dibagi 2–3 kali pemberian.</p>
+                    </div>
+                </div>
+
+                <div class="pakan-card">
+                    <div class="pakan-icon" style="background:rgba(0,180,216,0.12)">🌾</div>
+                    <div>
+                        <h4>Pelet Hi-Pro-Vite 781 (Alternatif)</h4>
+                        <p>Opsi premium dengan kandungan protein lebih tinggi (35%). Cocok untuk mempercepat pertumbuhan benih nila. Lebih efisien dalam rasio konversi pakan (FCR) sehingga limbah lebih sedikit.</p>
+                    </div>
+                </div>
+
+                <div class="pakan-card">
+                    <div class="pakan-icon" style="background:rgba(255,107,107,0.12)">🌿</div>
+                    <div>
+                        <h4>Pakan Alami (Suplemen Gratis)</h4>
+                        <p>Nila adalah omnivora yang suka memakan ganggang, plankton, dan sisa tumbuhan air. Biarkan sedikit lumut tumbuh di dinding kolam sebagai pakan tambahan alami untuk memangkas biaya pakan.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-panel fade-up fade-up-4">
+                <div class="info-panel-header">
+                    <div class="info-panel-icon" style="background:rgba(46,213,115,0.12)">📈</div>
+                    <h3>Indikator Pertumbuhan Sehat</h3>
+                </div>
+
+                <div class="health-bar-wrapper">
+                    <div class="health-bar-label">
+                        <span>Nafsu Makan</span>
+                        <span style="color:var(--teal);font-weight:700;">90%</span>
+                    </div>
+                    <div class="health-bar"><div class="health-bar-fill" style="width:90%"></div></div>
+                </div>
+                <div class="health-bar-wrapper">
+                    <div class="health-bar-label">
+                        <span>Kondisi Sisik & Warna</span>
+                        <span style="color:var(--teal);font-weight:700;">95%</span>
+                    </div>
+                    <div class="health-bar"><div class="health-bar-fill" style="width:95%"></div></div>
+                </div>
+                <div class="health-bar-wrapper">
+                    <div class="health-bar-label">
+                        <span>Aktivitas Berenang</span>
+                        <span style="color:var(--teal);font-weight:700;">88%</span>
+                    </div>
+                    <div class="health-bar"><div class="health-bar-fill" style="width:88%"></div></div>
+                </div>
+                <div class="health-bar-wrapper">
+                    <div class="health-bar-label">
+                        <span>Kualitas Air Kolam</span>
+                        <span style="color:var(--teal);font-weight:700;">82%</span>
+                    </div>
+                    <div class="health-bar"><div class="health-bar-fill" style="width:82%"></div></div>
+                </div>
+
+                <div class="divider"></div>
+
+                <table class="disease-table">
+                    <thead>
+                        <tr>
+                            <th>Penyakit</th>
+                            <th>Gejala</th>
+                            <th>Penanganan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Streptococcosis</strong></td>
+                            <td>Renang tidak normal, mata menonjol, perubahan warna</td>
+                            <td>Antibiotik + perbaiki kualitas air</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Aeromonas</strong></td>
+                            <td>Luka borok di tubuh, sirip sobek, pendarahan</td>
+                            <td>Isolasi + garam ikan + antibiotik</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======= LELE DUMBO ======= -->
+    <div class="fish-profile" id="fish-lele">
+
+        <div class="fish-main-card fade-up fade-up-1">
+            <div class="fish-hero-img" style="background: linear-gradient(135deg, #e8e8f0, #d0d0e8);">
+                <img src="lele.png" alt="Lele Dumbo">
+            </div>
+            <div class="fish-body">
+                <h2>Lele Dumbo</h2>
+                <span class="fish-latin">Clarias gariepinus × Clarias macrocephalus</span>
+
+                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+                    <span class="badge badge-blue">80 Ekor</span>
+                    <span class="badge badge-green">Sehat</span>
+                    <span class="badge badge-orange">Konsumsi</span>
+                </div>
+
+                <p style="font-size:0.87rem;color:var(--text-dark);line-height:1.7;">
+                    Lele Dumbo adalah hasil persilangan antara lele Afrika (<em>Clarias gariepinus</em>) dengan lele lokal (<em>Clarias macrocephalus</em>). Dikenal dengan kepalanya yang besar mirip telinga gajah (dumbo), lele ini tumbuh sangat cepat, tahan banting, dan menjadi salah satu ikan budidaya paling populer di Indonesia karena nilai ekonominya yang tinggi.
+                </p>
+
+                <div class="fish-stats-row">
+                    <div class="fish-stat">
+                        <div class="fish-stat-label">Kepadatan</div>
+                        <div class="fish-stat-value">100–200 ekor/m³</div>
+                    </div>
+                    <div class="fish-stat">
+                        <div class="fish-stat-label">Suhu Ideal</div>
+                        <div class="fish-stat-value">25 – 30°C</div>
+                    </div>
+                    <div class="fish-stat">
+                        <div class="fish-stat-label">pH Ideal</div>
+                        <div class="fish-stat-value">6.5 – 8.0</div>
+                    </div>
+                    <div class="fish-stat">
+                        <div class="fish-stat-label">Masa Panen</div>
+                        <div class="fish-stat-value">2 – 3 bulan</div>
+                    </div>
+                    <div class="fish-stat">
+                        <div class="fish-stat-label">Berat Panen</div>
+                        <div class="fish-stat-value">150 – 200 g</div>
+                    </div>
+                    <div class="fish-stat">
+                        <div class="fish-stat-label">Asal</div>
+                        <div class="fish-stat-value">Afrika / Indonesia</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-panels">
+
+            <div class="info-panel fade-up fade-up-2">
+                <div class="info-panel-header">
+                    <div class="info-panel-icon" style="background:rgba(120,80,200,0.12)">🌊</div>
+                    <h3>Habitat & Kebutuhan Air</h3>
+                </div>
+                <p>Lele Dumbo dikenal sangat toleran terhadap kondisi air yang buruk sekalipun, termasuk kadar oksigen rendah, karena memiliki organ pernapasan tambahan (labirin) yang memungkinkannya mengambil oksigen langsung dari udara. Kolam terpal, bak semen, maupun kolam tanah semuanya cocok. Pastikan air tidak terlalu dangkal — idealnya kedalaman 80–120 cm — dan ganti air secara berkala agar amonia tidak menumpuk.</p>
+            </div>
+
+            <div class="info-panel fade-up fade-up-3">
+                <div class="info-panel-header">
+                    <div class="info-panel-icon" style="background:rgba(244,196,48,0.12)">🍽️</div>
+                    <h3>Panduan Pakan & Nutrisi</h3>
+                </div>
+
+                <div class="pakan-card">
+                    <div class="pakan-icon" style="background:rgba(120,80,200,0.10)">⭐</div>
+                    <div>
+                        <h4>Pelet Lele 781-L / 781-F (Rekomendasi Utama)</h4>
+                        <p>Pelet terapung (floating) khusus lele dengan kandungan protein 30–35%. Jenis terapung sangat dianjurkan karena memudahkan pemantauan nafsu makan — jika pelet masih banyak tersisa setelah 10 menit, itu tanda ikan kenyang atau tidak sehat. Berikan 3–5% bobot tubuh per hari, dibagi 2 kali (pagi & sore).</p>
+                    </div>
+                </div>
+
+                <div class="pakan-card">
+                    <div class="pakan-icon" style="background:rgba(46,213,115,0.12)">🌾</div>
+                    <div>
+                        <h4>Pelet Comfeed / Hi-Pro-Vite (Alternatif)</h4>
+                        <p>Merek lokal dengan harga terjangkau dan kandungan nutrisi yang memadai untuk pertumbuhan lele. Cocok digunakan pada fase pembesaran. Tersedia dalam ukuran 1–3 mm sesuai ukuran mulut lele.</p>
+                    </div>
+                </div>
+
+                <div class="pakan-card">
+                    <div class="pakan-icon" style="background:rgba(255,107,107,0.12)">🪱</div>
+                    <div>
+                        <h4>Pakan Tambahan Alami</h4>
+                        <p>Lele adalah omnivora-karnivora. Maggot BSF (Black Soldier Fly), cacing tanah, dan sisa dapur (ampas tahu, bekatul) bisa diberikan sebagai suplemen ekonomis untuk menekan biaya pakan hingga 30%. Pastikan bahan alami dalam kondisi segar dan bersih.</p>
+                    </div>
+                </div>
+
+                <div style="background:rgba(255,165,0,0.08);border:1px dashed rgba(255,165,0,0.3);border-radius:10px;padding:10px 14px;margin-top:4px;">
+                    <p style="font-size:0.8rem;color:#8a6500;"><strong>⚠️ Perhatian:</strong> Lele bersifat kanibal terutama saat kelaparan dan ukurannya tidak seragam. Lakukan sortasi (grading) setiap 2–3 minggu untuk memisahkan lele berdasarkan ukuran agar pertumbuhan merata.</p>
+                </div>
+            </div>
+
+            <div class="info-panel fade-up fade-up-4">
+                <div class="info-panel-header">
+                    <div class="info-panel-icon" style="background:rgba(46,213,115,0.12)">📈</div>
+                    <h3>Indikator Pertumbuhan Sehat</h3>
+                </div>
+
+                <div class="health-bar-wrapper">
+                    <div class="health-bar-label">
+                        <span>Nafsu Makan</span>
+                        <span style="color:var(--teal);font-weight:700;">92%</span>
+                    </div>
+                    <div class="health-bar"><div class="health-bar-fill" style="width:92%"></div></div>
+                </div>
+                <div class="health-bar-wrapper">
+                    <div class="health-bar-label">
+                        <span>Pertumbuhan Badan</span>
+                        <span style="color:var(--teal);font-weight:700;">96%</span>
+                    </div>
+                    <div class="health-bar"><div class="health-bar-fill" style="width:96%"></div></div>
+                </div>
+                <div class="health-bar-wrapper">
+                    <div class="health-bar-label">
+                        <span>Aktivitas Berenang</span>
+                        <span style="color:var(--teal);font-weight:700;">85%</span>
+                    </div>
+                    <div class="health-bar"><div class="health-bar-fill" style="width:85%"></div></div>
+                </div>
+                <div class="health-bar-wrapper">
+                    <div class="health-bar-label">
+                        <span>Ketahanan Penyakit</span>
+                        <span style="color:var(--teal);font-weight:700;">90%</span>
+                    </div>
+                    <div class="health-bar"><div class="health-bar-fill" style="width:90%"></div></div>
+                </div>
+
+                <div class="divider"></div>
+
+                <table class="disease-table">
+                    <thead>
+                        <tr>
+                            <th>Penyakit</th>
+                            <th>Gejala</th>
+                            <th>Penanganan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Bintik Putih (Ich)</strong></td>
+                            <td>Bintik-bintik putih di kulit dan sirip, ikan sering menggosok tubuh ke dinding</td>
+                            <td>Naikkan suhu air ke 30–32°C + obat Methylene Blue</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Luka & Kanibalisme</strong></td>
+                            <td>Sirip atau ekor terpotong, luka terbuka di tubuh</td>
+                            <td>Sortasi ukuran, tambah kepadatan pakan, beri garam ikan 0.5%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Keracunan Amonia</strong></td>
+                            <td>Lele naik ke permukaan terus-menerus, insang merah gelap</td>
+                            <td>Ganti 50% air segera, kurangi pakan, tambah aerasi</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Infeksi Bakteri</strong></td>
+                            <td>Borok/luka bernanah, perut kembung, gerakan lambat</td>
+                            <td>Isolasi ikan sakit, rendam dalam larutan PK (Kalium permanganat) encer</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<footer class="site-footer">
+    © 2025 SIMOKIN · SMAN 28 Jakarta
+</footer>
+
+<script>
+function showFish(fishId, tabEl) {
+    document.querySelectorAll('.fish-profile').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.fish-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('fish-' + fishId).classList.add('active');
+    tabEl.classList.add('active');
+}
+</script>
+
+</body>
+</html>

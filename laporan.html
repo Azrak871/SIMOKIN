@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laporan Perawatan – SIMOKIN</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Laporan-specific */
+        .laporan-grid {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 24px;
+            align-items: start;
+        }
+
+        /* Parameter row */
+        .param-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px dashed var(--border);
+        }
+
+        .param-row:last-child { border-bottom: none; }
+
+        .param-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .param-label {
+            flex: 1;
+            font-size: 0.87rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .param-label span {
+            display: block;
+            font-size: 0.73rem;
+            font-weight: 400;
+            color: var(--text-muted);
+        }
+
+        .param-input {
+            width: 120px;
+            padding: 8px 12px;
+            background: white;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.88rem;
+            text-align: center;
+            color: var(--text-dark);
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .param-input:focus {
+            border-color: var(--teal);
+            box-shadow: 0 0 0 3px rgba(0,180,216,0.1);
+        }
+
+        /* Status select visual */
+        .status-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .status-option {
+            padding: 12px 8px;
+            border-radius: 12px;
+            border: 1.5px solid var(--border);
+            background: white;
+            text-align: center;
+            cursor: pointer;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            transition: all 0.2s ease;
+        }
+
+        .status-option .status-emoji { font-size: 24px; display: block; margin-bottom: 6px; }
+
+        .status-option.selected-normal {
+            border-color: #2ed573;
+            background: rgba(46,213,115,0.08);
+            color: #1a7a45;
+        }
+
+        .status-option.selected-keruh {
+            border-color: #ffa502;
+            background: rgba(255,165,2,0.08);
+            color: #a05a00;
+        }
+
+        .status-option.selected-sakit {
+            border-color: var(--coral);
+            background: rgba(255,107,107,0.08);
+            color: #c0392b;
+        }
+
+        /* History list */
+        .history-item {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 16px 18px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            transition: all 0.2s;
+        }
+
+        .history-item:hover { border-color: var(--teal); transform: translateX(3px); }
+
+        .history-date {
+            text-align: center;
+            min-width: 52px;
+        }
+
+        .history-date .hd-day {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--ocean-mid);
+            line-height: 1;
+        }
+
+        .history-date .hd-month {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        .history-content { flex: 1; }
+
+        .history-content h4 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 3px;
+        }
+
+        .history-content p {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+        }
+
+        /* Progress / fill animation */
+        .submit-btn-wrap { position: relative; overflow: hidden; border-radius: 14px; }
+
+        @media (max-width: 768px) {
+            .laporan-grid { grid-template-columns: 1fr; }
+            .status-options { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <a href="index.html" class="navbar-brand">
+       <div class="logo-icon">
+        <img src="logo.png" alt="SMAN 28 Jakarta" 
+         style="width:28px; height:28px; object-fit:contain;">
+        </div>
+            <span class="brand-name">SIMOKIN</span>
+            <span class="brand-sub">SMAN 28 Jakarta</span>
+        </div>
+    </a>
+    <ul class="navbar-nav">
+        <li><a href="index.html">🏠 <span>Beranda</span></a></li>
+        <li><a href="jadwal.html">📅 <span>Jadwal</span></a></li>
+        <li><a href="ikan.html">🐟 <span>Koleksi Ikan</span></a></li>
+        <li><a href="laporan.html" class="active">📋 <span>Laporan</span></a></li>
+    </ul>
+</nav>
+
+<div class="site-wrapper">
+
+    <div class="page-hero fade-up">
+        <div class="hero-icon">📋</div>
+        <div>
+            <h1>Laporan Perawatan</h1>
+            <p class="hero-sub">Catat kondisi kolam harian dengan lengkap dan terstruktur</p>
+        </div>
+    </div>
+
+    <div class="laporan-grid">
+
+        <!-- LEFT: Form Laporan -->
+        <div class="fade-up fade-up-1">
+
+            <!-- Status Air/Ikan -->
+            <div class="card" style="margin-bottom:20px;">
+                <div class="section-label">🚦 Status Kolam</div>
+                <div class="card-title">Status Air & Ikan</div>
+                <div class="card-subtitle">Pilih kondisi kolam saat ini</div>
+
+                <div class="status-options">
+                    <div class="status-option selected-normal" onclick="selectStatus('normal', this)">
+                        <span class="status-emoji">✅</span>
+                        Normal
+                    </div>
+                    <div class="status-option" onclick="selectStatus('keruh', this)">
+                        <span class="status-emoji">🌫️</span>
+                        Air Keruh
+                    </div>
+                    <div class="status-option" onclick="selectStatus('sakit', this)">
+                        <span class="status-emoji">🤒</span>
+                        Ikan Sakit
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom:0">
+                    <label class="form-label">Deskripsi Kondisi</label>
+                    <textarea id="deskripsi" class="form-control" placeholder="Contoh: Air sedikit keruh di sudut kolam, kemungkinan karena angin bawa daun. pH masih dalam batas normal."></textarea>
+                </div>
+            </div>
+
+            <!-- Parameter Air -->
+            <div class="card" style="margin-bottom:20px;">
+                <div class="section-label">🧪 Kualitas Air</div>
+                <div class="card-title">Parameter Air Hari Ini</div>
+                <div class="card-subtitle">Isi hasil pengukuran (kosongkan jika tidak diukur)</div>
+
+                <div class="param-row">
+                    <div class="param-icon" style="background:rgba(0,180,216,0.12)">🔬</div>
+                    <div class="param-label">pH Air <span>Ideal: 6.5 – 8.5</span></div>
+                    <input type="number" step="0.1" min="0" max="14" placeholder="7.2" class="param-input" id="ph">
+                </div>
+                <div class="param-row">
+                    <div class="param-icon" style="background:rgba(244,196,48,0.12)">🌡️</div>
+                    <div class="param-label">Suhu Air (°C) <span>Ideal: 25 – 30°C</span></div>
+                    <input type="number" step="0.5" min="0" max="50" placeholder="27" class="param-input" id="suhu">
+                </div>
+                <div class="param-row">
+                    <div class="param-icon" style="background:rgba(46,213,115,0.12)">💧</div>
+                    <div class="param-label">Oksigen (mg/L) <span>Ideal: > 5 mg/L</span></div>
+                    <input type="number" step="0.1" min="0" placeholder="6.5" class="param-input" id="oksigen">
+                </div>
+                <div class="param-row">
+                    <div class="param-icon" style="background:rgba(255,107,107,0.12)">⚗️</div>
+                    <div class="param-label">Amonia (mg/L) <span>Ideal: &lt; 0.02 mg/L</span></div>
+                    <input type="number" step="0.001" min="0" placeholder="0.01" class="param-input" id="amonia">
+                </div>
+            </div>
+
+            <!-- Kegiatan -->
+            <div class="card" style="margin-bottom:20px;">
+                <div class="section-label">✅ Kegiatan Hari Ini</div>
+                <div class="card-title">Kegiatan yang Sudah Dilakukan</div>
+                <div class="card-subtitle">Centang semua yang sudah selesai</div>
+
+                <div id="kegiatan-list">
+                    <div class="param-row" style="gap:14px;">
+                        <input type="checkbox" id="k1" style="width:18px;height:18px;accent-color:var(--teal);cursor:pointer;">
+                        <label for="k1" style="cursor:pointer;font-size:0.9rem;font-weight:500;color:var(--text-dark);">Pemberian pakan pagi (08:00)</label>
+                    </div>
+                    <div class="param-row" style="gap:14px;">
+                        <input type="checkbox" id="k2" style="width:18px;height:18px;accent-color:var(--teal);cursor:pointer;">
+                        <label for="k2" style="cursor:pointer;font-size:0.9rem;font-weight:500;color:var(--text-dark);">Pemberian pakan sore (16:30)</label>
+                    </div>
+                    <div class="param-row" style="gap:14px;">
+                        <input type="checkbox" id="k3" style="width:18px;height:18px;accent-color:var(--teal);cursor:pointer;">
+                        <label for="k3" style="cursor:pointer;font-size:0.9rem;font-weight:500;color:var(--text-dark);">Pengecekan kualitas air</label>
+                    </div>
+                    <div class="param-row" style="gap:14px;">
+                        <input type="checkbox" id="k4" style="width:18px;height:18px;accent-color:var(--teal);cursor:pointer;">
+                        <label for="k4" style="cursor:pointer;font-size:0.9rem;font-weight:500;color:var(--text-dark);">Pembersihan area sekitar kolam</label>
+                    </div>
+                    <div class="param-row" style="gap:14px;border-bottom:none;">
+                        <input type="checkbox" id="k5" style="width:18px;height:18px;accent-color:var(--teal);cursor:pointer;">
+                        <label for="k5" style="cursor:pointer;font-size:0.9rem;font-weight:500;color:var(--text-dark);">Pengecekan filter & pompa</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Petugas & Tombol -->
+            <div class="card">
+                <div class="form-group">
+                    <label class="form-label">Nama Petugas / Siswa</label>
+                    <input type="text" id="petugas" placeholder="Masukkan nama lengkap" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Kelas</label>
+                    <select id="kelas" class="form-control">
+                        <option value="">-- Pilih Kelas --</option>
+                        <option>X-1</option><option>X-2</option><option>X-3</option><option>X-4</option><option>X-5</option><option>X-6</option><option>X-7</option>
+                        <option>XI-1</option><option>XI-2</option><option>XI-3</option><option>XI-4</option><option>XI-5</option><option>XI-6</option><option>XI-7</option>
+                        <option>XII-1</option><option>XII-2</option><option>XII-3</option><option>XII-4</option><option>XII-5</option><option>XII-6</option><option>XII-7</option>
+                        <option>Guru / Staff</option>
+                    </select>
+                </div>
+                <div style="margin-bottom:0">
+                    <button class="btn btn-primary" onclick="kirimLaporan()" style="width:100%;justify-content:center;font-size:1rem;padding:16px;">
+                        📤 Kirim Laporan Hari Ini
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT: Riwayat & Tips -->
+        <div class="fade-up fade-up-2">
+
+            <!-- Riwayat — dinamis dari localStorage + Spreadsheet -->
+            <div class="card" style="margin-bottom:20px;">
+                <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:0;">
+                    <div>
+                        <div class="section-label" style="margin-bottom:8px;">🕐 Riwayat</div>
+                        <div class="card-title">Laporan Terbaru</div>
+                        <div class="card-subtitle" style="margin-bottom:16px;">Diperbarui otomatis setiap laporan masuk</div>
+                    </div>
+                    <button onclick="hapusSemua()" title="Hapus semua riwayat"
+                        style="margin-top:6px;font-size:0.72rem;padding:6px 10px;border-radius:8px;border:1px solid rgba(220,38,38,0.25);background:rgba(220,38,38,0.06);color:#b91c1c;cursor:pointer;font-weight:600;white-space:nowrap;flex-shrink:0;">
+                        🗑️ Hapus
+                    </button>
+                </div>
+                <div id="history-list">
+                    <div style="text-align:center;padding:28px 0;color:var(--text-muted);font-size:0.85rem;">
+                        ⏳ Memuat riwayat...
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panduan Kondisi -->
+            <div class="card">
+                <div class="section-label">💡 Panduan</div>
+                <div class="card-title">Apa yang Harus Dilakukan?</div>
+                <div id="saran-panel">
+                    <div style="background:rgba(46,213,115,0.08);border:1.5px solid rgba(46,213,115,0.25);border-radius:12px;padding:16px;">
+                        <p style="font-size:0.87rem;color:#1a7a45;line-height:1.7;"><strong>✅ Kolam Normal</strong><br>Lanjutkan rutinitas harian. Pastikan filter berjalan baik dan pakan habis dalam 5 menit. Catat data parameter secara rutin untuk memantau tren jangka panjang.</p>
+                    </div>
+                </div>
+
+                <div class="divider"></div>
+
+                <p style="font-size:0.8rem;color:var(--text-muted);line-height:1.6;">
+                    <strong style="color:var(--text-dark);">🚨 Jika Air Keruh:</strong><br>
+                    Segera cek filter, kurangi pakan 50%, ganti air 20–30%, tambah aerasi. Hubungi guru pembimbing jika tidak membaik dalam 24 jam.
+                </p>
+
+                <div class="divider"></div>
+
+                <p style="font-size:0.8rem;color:var(--text-muted);line-height:1.6;">
+                    <strong style="color:var(--text-dark);">🐟 Jika Ikan Sakit:</strong><br>
+                    Isolasi ikan yang sakit ke wadah terpisah, hentikan pemberian pakan 1–2 hari, lakukan penggantian air 30%, dan konsultasikan dengan guru biologi.
+                </p>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<footer class="site-footer">
+    © 2025 SIMOKIN · SMAN 28 Jakarta
+</footer>
+
+<!-- Toast -->
+<div class="toast" id="toast">
+    <span>✅</span>
+    <span id="toast-msg">Laporan berhasil dikirim!</span>
+</div>
+
+<script>
+    // ==============================================
+    // SIMOKIN — Laporan Dinamis
+    // Data disimpan di localStorage (persisten di
+    // browser ini) + dikirim ke Google Spreadsheet
+    // ==============================================
+
+    const SCRIPT_URL  = "https://script.google.com/macros/s/AKfycbzog3GZtNtMAZN-7MRcG76eswYZ10IYR4-WxqSDIhnJuxH98jn7rqSQe5J85lta-Cue/exec";
+    const STORAGE_KEY = 'simokin_riwayat_laporan';
+    const MAX_HISTORY = 30;
+
+    let selectedStatus = 'normal';
+
+    // ---------- localStorage helpers ----------
+    function simpanLokal(laporan) {
+        const data = ambilLokal();
+        data.unshift(laporan); // tambah di depan (terbaru di atas)
+        if (data.length > MAX_HISTORY) data.pop();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+
+    function ambilLokal() {
+        try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+        catch(e) { return []; }
+    }
+
+    // ---------- Render history ----------
+    function renderHistory(data) {
+        const container = document.getElementById('history-list');
+        if (!data || data.length === 0) {
+            container.innerHTML = `
+                <div style="text-align:center;padding:32px 0;color:var(--text-muted);">
+                    <div style="font-size:2rem;margin-bottom:8px;">📭</div>
+                    <div style="font-size:0.85rem;">Belum ada laporan yang masuk.<br>Jadilah yang pertama mengisi!</div>
+                </div>`;
+            return;
+        }
+
+        const bulanSingkat = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agt','Sep','Okt','Nov','Des'];
+
+        container.innerHTML = data.map(item => {
+            const tgl  = new Date(item.timestamp);
+            const hari = isNaN(tgl) ? '--' : tgl.getDate();
+            const bln  = isNaN(tgl) ? '---' : bulanSingkat[tgl.getMonth()];
+
+            const statusMap = {
+                normal: { badge: 'badge-green',  label: 'Normal'    },
+                keruh:  { badge: 'badge-orange', label: 'Air Keruh' },
+                sakit:  { badge: 'badge-red',    label: 'Ikan Sakit'}
+            };
+            const s = statusMap[item.status] || statusMap['normal'];
+
+            const params = [];
+            if (item.ph)      params.push('pH: ' + item.ph);
+            if (item.suhu)    params.push('Suhu: ' + item.suhu + '°C');
+            if (item.oksigen) params.push('O₂: ' + item.oksigen + ' mg/L');
+            const paramStr = params.length ? params.join(' · ') : 'Parameter tidak dicatat';
+
+            const catatan = item.deskripsi
+                ? `<p style="font-size:0.74rem;color:var(--text-muted);margin-top:2px;font-style:italic;">"${item.deskripsi.substring(0, 60)}${item.deskripsi.length > 60 ? '…' : ''}"</p>`
+                : '';
+
+            return `
+                <div class="history-item" style="animation:fadeUp 0.3s ease both;">
+                    <div class="history-date">
+                        <div class="hd-day">${hari}</div>
+                        <div class="hd-month">${bln}</div>
+                    </div>
+                    <div class="history-content">
+                        <h4>${item.petugas} · ${item.kelas}</h4>
+                        <p>${paramStr}</p>
+                        ${catatan}
+                    </div>
+                    <span class="badge ${s.badge}">${s.label}</span>
+                </div>`;
+        }).join('');
+    }
+
+    // ---------- Muat riwayat saat halaman dibuka ----------
+    function muatRiwayat() {
+        const lokal = ambilLokal();
+        renderHistory(lokal); // tampilkan data lokal dulu (instant)
+    }
+
+    // ---------- Pilih status ----------
+    function selectStatus(status, el) {
+        selectedStatus = status;
+        document.querySelectorAll('.status-option').forEach(s =>
+            s.classList.remove('selected-normal', 'selected-keruh', 'selected-sakit'));
+        el.classList.add('selected-' + status);
+
+        const saran = document.getElementById('saran-panel');
+        if (status === 'normal') {
+            saran.innerHTML = `<div style="background:rgba(46,213,115,0.08);border:1.5px solid rgba(46,213,115,0.25);border-radius:12px;padding:16px;">
+                <p style="font-size:0.87rem;color:#1a7a45;line-height:1.7;"><strong>✅ Kolam Normal</strong><br>Lanjutkan rutinitas harian. Pastikan filter berjalan baik dan pakan habis dalam 5 menit.</p>
+            </div>`;
+        } else if (status === 'keruh') {
+            saran.innerHTML = `<div style="background:rgba(255,165,0,0.08);border:1.5px solid rgba(255,165,0,0.3);border-radius:12px;padding:16px;">
+                <p style="font-size:0.87rem;color:#a05a00;line-height:1.7;"><strong>🌫️ Air Keruh Terdeteksi</strong><br>Segera cek kondisi filter, kurangi porsi pakan hingga 50%, ganti 20–30% air kolam.</p>
+            </div>`;
+        } else {
+            saran.innerHTML = `<div style="background:rgba(255,107,107,0.08);border:1.5px solid rgba(255,107,107,0.3);border-radius:12px;padding:16px;">
+                <p style="font-size:0.87rem;color:#c0392b;line-height:1.7;"><strong>🤒 Ikan Sakit Terdeteksi</strong><br>Segera isolasi ikan sakit. Hubungi guru pembimbing secepatnya.</p>
+            </div>`;
+        }
+    }
+
+    // ---------- Kirim laporan ----------
+    function kirimLaporan() {
+        const petugas  = document.getElementById('petugas').value.trim();
+        const kelas    = document.getElementById('kelas').value;
+        const deskripsi= document.getElementById('deskripsi').value.trim();
+        const ph       = document.getElementById('ph').value;
+        const suhu     = document.getElementById('suhu').value;
+        const oksigen  = document.getElementById('oksigen').value;
+        const amonia   = document.getElementById('amonia').value;
+
+        if (!petugas || !kelas) {
+            showToast('⚠️ Nama dan Kelas wajib diisi!', 3000);
+            return;
+        }
+
+        const btn = event.currentTarget;
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '⌛ Mengirim...';
+        btn.disabled = true;
+
+        // Buat objek laporan
+        const laporan = {
+            timestamp: new Date().toISOString(),
+            petugas, kelas, status: selectedStatus,
+            deskripsi, ph, suhu, oksigen, amonia
+        };
+
+        // 1. Simpan lokal DULU agar langsung terlihat
+        simpanLokal(laporan);
+        renderHistory(ambilLokal());
+
+        // 2. Kirim ke Google Spreadsheet
+        const formData = new URLSearchParams();
+        Object.entries(laporan).forEach(([k, v]) => formData.append(k, v));
+
+        fetch(SCRIPT_URL, { method: 'POST', body: formData, mode: 'no-cors' })
+            .then(() => {
+                showToast('✅ Laporan tersimpan di Spreadsheet & riwayat diperbarui!', 4000);
+            })
+            .catch(err => {
+                showToast('⚠️ Tersimpan lokal, tapi gagal ke Spreadsheet: ' + err.message, 4000);
+            })
+            .finally(() => {
+                // Reset form
+                ['petugas','deskripsi','ph','suhu','oksigen','amonia']
+                    .forEach(id => document.getElementById(id).value = '');
+                document.getElementById('kelas').value = '';
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            });
+    }
+
+    // ---------- Hapus semua riwayat lokal ----------
+    function hapusSemua() {
+        if (!confirm('Hapus semua riwayat laporan di perangkat ini?')) return;
+        localStorage.removeItem(STORAGE_KEY);
+        renderHistory([]);
+        showToast('🗑️ Riwayat lokal dihapus.', 2500);
+    }
+
+    // ---------- Toast ----------
+    function showToast(msg, duration = 3000) {
+        const toast    = document.getElementById('toast');
+        const toastMsg = document.getElementById('toast-msg');
+        if (toast && toastMsg) {
+            toastMsg.textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), duration);
+        }
+    }
+
+    // ---------- Init ----------
+    document.addEventListener('DOMContentLoaded', muatRiwayat);
+</script> 
+
+</body>
+</html>
